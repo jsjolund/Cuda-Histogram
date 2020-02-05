@@ -3547,48 +3547,48 @@ bool smallBinLimit(int nOut, OUTPUTTYPE zero, cudaDeviceProp* props, int cuda_ar
   return false;
 }
 
-__global__
-void detectCudaArchKernel(int* res)
-{
-    int result;
-#if __CUDA_ARCH__ >= 210
-    result = 210;
-#elif __CUDA_ARCH__ >= 200
-    result = 200;
-#elif __CUDA_ARCH__ >= 130
-    result = 130;
-#elif __CUDA_ARCH__ >= 120
-    result = 120;
-#elif __CUDA_ARCH__ >= 110
-    result = 110;
-#else
-    result = 100;
-#endif
-    if (threadIdx.x == 0)
-        *res = result;
-}
+// __global__
+// void detectCudaArchKernel(int* res)
+// {
+//     int result;
+// #if __CUDA_ARCH__ >= 210
+//     result = 210;
+// #elif __CUDA_ARCH__ >= 200
+//     result = 200;
+// #elif __CUDA_ARCH__ >= 130
+//     result = 130;
+// #elif __CUDA_ARCH__ >= 120
+//     result = 120;
+// #elif __CUDA_ARCH__ >= 110
+//     result = 110;
+// #else
+//     result = 100;
+// #endif
+//     if (threadIdx.x == 0)
+//         *res = result;
+// }
 
 static
 int DetectCudaArch(void)
 {
-    // The only way to know from host-code, which device architecture our kernels have been generated
-    // against, is to run a kernel that actually checks it.. :)
-    dim3 grid = 1;
-    //dim3 block = 32;
-    // TODO: Allow static storage so that we can ask just once for the arch???
-    // NOTE: This function implies synchromization between CPU and GPU - so use static here...
-    static int result = 0;
-    //int result = 0;
-    if (result == 0)
-    {
-        void* tmpBuf;
-        cudaMalloc(&tmpBuf, sizeof(int));
-        detectCudaArchKernel<<<grid, grid>>>((int*)tmpBuf);
-        cudaMemcpy(&result, tmpBuf, sizeof(int), cudaMemcpyDeviceToHost);
-        cudaFree(tmpBuf);
-      //printf("Detected CUDA_ARCH = %d\n", result);
-    }
-    return result;
+    // // The only way to know from host-code, which device architecture our kernels have been generated
+    // // against, is to run a kernel that actually checks it.. :)
+    // dim3 grid = 1;
+    // //dim3 block = 32;
+    // // TODO: Allow static storage so that we can ask just once for the arch???
+    // // NOTE: This function implies synchromization between CPU and GPU - so use static here...
+    // static int result = 0;
+    // //int result = 0;
+    // if (result == 0)
+    // {
+    //     void* tmpBuf;
+    //     cudaMalloc(&tmpBuf, sizeof(int));
+    //     detectCudaArchKernel<<<grid, grid>>>((int*)tmpBuf);
+    //     cudaMemcpy(&result, tmpBuf, sizeof(int), cudaMemcpyDeviceToHost);
+    //     cudaFree(tmpBuf);
+    //   //printf("Detected CUDA_ARCH = %d\n", result);
+    // }
+    return 210;
 }
 
 static bool runMultiPass(int nOut, cudaDeviceProp* props, int cuda_arch, size_t outsize, histogram_type histotype)
