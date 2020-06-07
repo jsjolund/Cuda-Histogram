@@ -672,7 +672,7 @@ bool ballot_makeUnique(
       *nSameKeys = 0;
       while (~donemask != 0 /*&& i++ < 32*/)
       {
-        unsigned int mask = __ballot(myKey == startKey);
+        unsigned int mask = __ballot_sync(__activemask(), myKey == startKey);
         if (myKey == startKey)
           mymask = mask;
         donemask |= mask;
@@ -692,7 +692,7 @@ bool ballot_makeUnique(
       while (startIndex >= 0)
       {
         int startKey = s_keys[startIndex];
-        unsigned int mask = __ballot(myKey == startKey);
+        unsigned int mask = __ballot_sync(__activemask(), myKey == startKey);
         if (myKey == startKey)
           mymask = mask;
         donemask |= mask;
@@ -727,7 +727,7 @@ bool ballot_makeUnique(
         //if (myKey == 0) printf("tid = %02d, IamNth = %02d, mask = 0x%08x, rmask = 0x%08x \n", threadIdx.x, IamNth, mymask, rmask);
         //bool done = __all(nextIdx < 0);
         // TODO: Unroll 5?
-        while (!__all(nextIdx < 0))
+        while (!__all_sync(__activemask(), nextIdx < 0))
         {
           // Reduce towards those threads that have lower IamNth
           // Our thread reads the next one if our internal ID is even
@@ -747,7 +747,7 @@ bool ballot_makeUnique(
           // Now the beautiful part: Kill every other bit in the rmask bitfield. How, you ask?
           // Using ballot: Every bit we want to kill has IamNth odd, or conversely, we only
           // want to keep those bits that have IamNth even...
-          rmask &= __ballot((IamNth & 0x1) == 0);
+          rmask &= __ballot_sync(__activemask(), (IamNth & 0x1) == 0);
           nextIdx = 31 - __clz(rmask);
           // if (myKey == 0) printf("tid = %02d, next = %02d, key = %d\n", threadIdx.x, rmask, nextIdx, myKey);
 
@@ -1994,7 +1994,7 @@ bool checkForReduction (int* myKeys, int* rkeys)
 	/*||
         (myKeys[0] == (rkeys[(threadIdx.x + 8) & 31]))*/;
     //GIVE_WARP_MUTEX(0);
-    unsigned int degenMask = __ballot(myKeyDegenerate);
+    unsigned int degenMask = __ballot_sync(__activemask(), myKeyDegenerate);
     // Estimate number of degenerate keys - if all are degenerate, the estimate is accurate
     int nDegen = __popc(degenMask);
     if (nDegen > HISTOGRAM_DEGEN_LIMIT)
