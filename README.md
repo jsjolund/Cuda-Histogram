@@ -74,6 +74,12 @@ Installation
  - Code provided as one header file: cuda_histogram.h - just include it and go
     (To be compiled with nvcc)
 
+Windows compilation
+===================
+
+ - "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+ - Add link to NPP: nvcc -I ..\ -lnppist test_image_8b_4C.cu
+
 Short Usage instructions
 ========================
 
